@@ -31,4 +31,17 @@ class FluxExamples {
         println("Assinando eventos criado com o Empty e JustOrEmpty")
         fluxEmpty.subscribe { println("não passei aqui") }
     }
+
+    @Test
+    fun `doOnNext`() {
+        Flux.just(
+            "Felipe",
+            "Diego",
+            "Luana"
+        )
+        .doOnNext { println("$it passou aqui.") }
+        .doOnNext { println("$it passou aqui também.") }
+        .doOnComplete { println("Mas nenhum deles passou aqui.") }
+        .subscribe()
+    }
 }

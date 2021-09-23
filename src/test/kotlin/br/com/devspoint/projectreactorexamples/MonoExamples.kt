@@ -27,4 +27,12 @@ class MonoExamples {
         monoEmpty.subscribe { println("não passei aqui") }
         monoJustOrEmpty.subscribe { println("não passei aqui") }
     }
+
+    @Test
+    fun `doOnNext`() {
+        Mono.just("Olá")
+            .doOnNext { println("$it mundo!") }
+            .doOnNext { println("$it leitor!") }
+            .subscribe()
+    }
 }
