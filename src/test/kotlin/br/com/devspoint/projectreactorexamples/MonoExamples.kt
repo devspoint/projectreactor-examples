@@ -1,6 +1,7 @@
 package br.com.devspoint.projectreactorexamples
 
 import org.junit.jupiter.api.Test
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -75,6 +76,30 @@ class MonoExamples {
             .doOnNext { println("Não passo por aqui pois nenhum item foi emitido") }
             .defaultIfEmpty(Pessoa("default"))
             .subscribe(System.out::println)
+    }
+
+
+    @Test
+    fun `mono to flux`() {
+        val pessoas = listOf(
+            Pessoa("Felipe"),
+            Pessoa("Diego")
+        )
+
+        val fluxFromMonoFlatMapMany: Flux<Pessoa> = Mono.just(pessoas)
+            .flatMapMany { Flux.fromIterable(it) }
+
+        val fluxFromMonoFlatMapIterable: Flux<Pessoa> = Mono.just(pessoas)
+            .flatMapIterable { it }
+    }
+
+    @Test
+    fun `mono error`() {
+        val monoError: Mono<Pessoa> = Mono.just(Funcionario("Fulano"))
+            .flatMap { Mono.error<Funcionario>(Exception("Erro no Cadastro")) }
+            .doOnError { println("Mostrar mensagem de erro: $it") }
+            .onErrorResume { Mono.just(Funcionario("Ciclano")) }
+            .map { Pessoa(it.nome) }
     }
 }
 

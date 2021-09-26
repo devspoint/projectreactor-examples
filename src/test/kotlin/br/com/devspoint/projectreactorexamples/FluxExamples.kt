@@ -84,4 +84,37 @@ class FluxExamples {
             .subscribe(System.out::println)
     }
 
+    @Test
+    fun `flux to mono`() {
+        val pessoas = listOf(
+            Pessoa("Felipe"),
+            Pessoa("Diego")
+        )
+
+        val monoFromFluxCollectList: Mono<List<Pessoa>> = Flux.just(
+            Pessoa("Felipe"), Pessoa("Diego"))
+        .collectList()
+
+        val monoFromFluxNext: Mono<Pessoa> = Flux.just(
+            Pessoa("Felipe"), Pessoa("Diego"))
+        .next()
+
+        val monoFromFluxLast: Mono<Pessoa> = Flux.just(
+            Pessoa("Felipe"), Pessoa("Diego"))
+        .last()
+
+        Flux.just(
+            Pessoa("Felipe"), Pessoa("Diego"))
+        .reduce { pessoa1, pessoa2 -> Pessoa("Felipe Diego") }
+            .subscribe { println(it) }
+    }
+
+    @Test
+    fun `flux error`() {
+        val fluxError: Flux<Pessoa> = Flux.just(Funcionario("Fulano"))
+            .flatMap { Mono.error<Funcionario>(Exception("Erro no Cadastro")) }
+            .doOnError { println("Mostrar mensagem de erro: $it") }
+            .onErrorResume { Mono.just(Funcionario("Ciclano")) }
+            .map { Pessoa(it.nome) }
+    }
 }
