@@ -44,4 +44,44 @@ class FluxExamples {
         .doOnComplete { println("Mas nenhum deles passou aqui.") }
         .subscribe()
     }
+
+    @Test
+    fun `transforming an item`() {
+        Flux.just(
+            Pessoa("Felipe"),
+            Pessoa("Diego")
+        )
+        .map { Funcionario.from(it) }
+        .doOnNext { println(it) }
+        .subscribe()
+    }
+
+    @Test
+    fun `transforming an item to a new mono`() {
+        val fluxMap: Flux<Flux<Pessoa>> = Flux.just("item")
+                .map { PessoaRepository.findAll() }
+
+        val fluxFlatMap: Flux<Pessoa> = Flux.just("item")
+            .flatMap { PessoaRepository.findAll() }
+    }
+
+    @Test
+    fun `handling empty flux`() {
+        val idPessoa = 0L
+
+        val fluxSwitchIfEmpty = Flux.just(idPessoa)
+            .flatMap { PessoaCacheRepository.findAll() }
+            .doOnNext { println("Não passo por aqui pois nenhum item foi emitido") }
+            .switchIfEmpty(
+                Flux.defer { PessoaRepository.findAll() }
+            )
+            .subscribe(System.out::println)
+
+        val fluxDefaultIfEmpty = Flux.just(idPessoa)
+            .flatMap { PessoaCacheRepository.findAll() }
+            .doOnNext { println("Não passo por aqui pois nenhum item foi emitido") }
+            .defaultIfEmpty(Pessoa("default"))
+            .subscribe(System.out::println)
+    }
+
 }
